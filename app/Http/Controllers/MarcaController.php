@@ -19,7 +19,7 @@ class MarcaController extends Controller
      */
     public function index()
     {
-        $marcas = $this->marca->all();
+        $marcas = $this->marca->with('modelos')->get();
         return response()->json($marcas, 200);
     }
 
@@ -56,7 +56,7 @@ class MarcaController extends Controller
      */
     public function show($id)
     {
-        $marca = $this->marca->find($id);
+        $marca = $this->marca->with('modelos')->find($id);
         if($marca === null)
         {
             return response()->json(['erro' => 'Recurso Pesquisado não existe'], 404);
@@ -94,7 +94,6 @@ class MarcaController extends Controller
                     $regras[$input] = $regra;
                 }
             }
-            // dd($regras);
             $request->validate($regras, $this->marca->feedback());
 
 
@@ -105,15 +104,18 @@ class MarcaController extends Controller
         //remove arquivo antigo caso um novo seja enviado
         if($request->file('imagem')){
             Storage::disk('public')->delete($marca->imagem);
+            $image = $request->file('imagem');
+            $imagem_urn = $image->store('imagens', 'public');
+        }else {
+            $imagem_urn = $marca->imagem;
         }
 
-        $image = $request->file('imagem');
-        $imagem_urn = $image->store('imagens', 'public');
 
-        $marca->update([
-            'nome' => $request->nome,
-            'imagem' => $imagem_urn
-        ]);
+        $marca->fill($request->all());
+        $marca->imagem = $imagem_urn;
+
+        $marca->save();
+
 
         return response()->json($marca, 200);
     }
