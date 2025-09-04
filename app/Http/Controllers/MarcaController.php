@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Storage;
 use App\Models\Marca;
+use App\Repositories\MarcaRepository;
 use Illuminate\Http\Request;
 
 class MarcaController extends Controller
@@ -17,10 +18,27 @@ class MarcaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $marcas = $this->marca->with('modelos')->get();
-        return response()->json($marcas, 200);
+        $marcaRepository = new MarcaRepository($this->marca);
+
+        if ($request->has('atributos_modelos')) {
+            $atributos_modelos = 'modelos:id,'.$request->atributos_modelos;
+
+            $marcaRepository->selectAtributosRegistrosRelacionados($atributos_modelos);
+        }else {
+            $marcaRepository->selectAtributosRegistrosRelacionados('modelos');
+        }
+
+        if ($request->has('filtro')) {
+            $marcaRepository->filtro($request->filtro);
+        }
+
+        if($request->has('atributos')){
+            $marcaRepository->selectAtributos($request->atributos);
+        }
+
+        return response()->json($marcaRepository->getResultado(), 200);
     }
 
     /**
@@ -94,11 +112,11 @@ class MarcaController extends Controller
                     $regras[$input] = $regra;
                 }
             }
-            $request->validate($regras, $this->marca->feedback());
+            $request->validate($regras, $marca->feedback());
 
 
         } else {
-            $request->validate($this->marca->rules(), $this->marca->feedback());
+            $request->validate($marca->rules(), $marca->feedback());
         }
 
         //remove arquivo antigo caso um novo seja enviado
