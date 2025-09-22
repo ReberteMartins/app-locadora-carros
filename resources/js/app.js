@@ -18,6 +18,7 @@ import MarcasComponent from './components/Marcas.vue';
 import InputContainer from './components/InputContainer.vue';
 import TableContainer from './components/Table.vue';
 import CardContainer from './components/Card.vue';
+import ModalContainer from './components/Modal.vue';
 
 /**
  * --------------------------------------------------------------------------
@@ -38,7 +39,8 @@ const components = {
   'marcas-component': MarcasComponent,
   'input-container-component': InputContainer,
   'table-component': TableContainer,
-  'card-component': CardContainer
+  'card-component': CardContainer,
+  'modal-component': ModalContainer,
 };
 
 Object.entries(components).forEach(([name, component]) => {

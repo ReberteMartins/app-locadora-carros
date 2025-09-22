@@ -26,6 +26,5 @@ Route::group([
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::post('logout', [AuthController::class, 'logout']);
 });
-
 Route::post('login', [AuthController::class, 'login']);
 
