@@ -44,7 +44,7 @@ return [
             'driver' => 'jwt', // usa JWT em vez de session
             'provider' => 'users',
             'hash' => false
-    ],
+         ],
     ],
 
     /*
