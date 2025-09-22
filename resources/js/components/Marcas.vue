@@ -54,6 +54,12 @@
 
         <!-- Modal -->
         <modal-component id="modalMarca" titulo="Adicionar Marca">
+            <template v-slot:alertas>
+                <alert-component tipo="success" texto="Sucesso ao cadastrar" v-if="transacaoStatus == 'adicionado'"></alert-component>
+                <alert-component tipo="danger" texto="Erro ao cadastrar" v-if="transacaoStatus == 'erro'"></alert-component>
+            </template>
+
+
             <template v-slot:conteudo>
                 <div class="form-group">
                     <input-container-component titulo="Nome da marca" id="novoNome" id-help="novoNomeHelp" texto-ajuda="Informe o nome do registro">
@@ -83,7 +89,9 @@
     export default {
         computed: {
                 token(){
-                    let token = localStorage.getItem('token')
+                    // let token = localStorage.getItem('token')
+                    let token = document.cookie
+                    console.log(token)
 
                     return `Bearer ${token}`
                 }
@@ -93,6 +101,7 @@
                 urlBase: 'http://localhost:8000/api/marca',
                 nomeMarca: '',
                 arquivoImagem: [],
+                transacaoStatus: '',
             }
         },
         methods:{
@@ -100,7 +109,7 @@
                 this.arquivoImagem = e.target.files
             },
             salvar(){
-                console.log(this.nomeMarca, this.arquivoImagem[0])
+                console.log( this.token)
 
                 let formData = new FormData();
                 formData.append('nome', this.nomeMarca)
@@ -110,15 +119,17 @@
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Accept': 'application/json',
-                        'Authorization': this.token
+                        'Authorization': this.token,
                     }
                 }
 
                 // URL | Conteudo | Configuração
                 axios.post( this.urlBase, formData, config).then(response=> {
+                    this.transacaoStatus = 'adicionado'
                     console.log(response)
                 })
                 .catch(errors => {
+                    this.transacaoStatus = 'erro'
                     console.log(errors)
                 })
             }
