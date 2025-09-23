@@ -6,7 +6,7 @@
                 <div class="card">
                     <div class="card-header">Login (Componente Vue)</div>
                     <div class="card-body">
-                        <form method="POST" action="">
+                        <form method="POST" action="" @submit.prevent="login($event)">
                             <input type="hidden" name="_token" :value="token_csrf">
                             <div class="row mb-3">
                                 <label for="email" class="col-md-4 col-form-label text-md-end">Email</label>
@@ -68,10 +68,14 @@
         },
         methods: {
             login(e){
-                console.log(this.email, this.password)
+
                 let url = "http://localhost:8000/api/login"
                 let configuracao = {
                     method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
                     body: new URLSearchParams ({
                         'email': this.email,
                         'password': this.password
@@ -81,15 +85,18 @@
                 fetch(url, configuracao)
                     .then(response => response.json())
                     .then(data => {
-                        if (data.token) {
-                            localStorage.setItem('token', data.token) // melhor que cookie simples
-                            window.location.href = "/home";
+                        console.log('Resposta completa da API:', data);
+                        console.log(data.access_token)
+
+                        if (data.access_token) {
+                            localStorage.setItem('token', data.access_token) // melhor que cookie simples
+                            // window.location.href = "/home";
                         } else {
                             alert("Credenciais inválidas")
                         }
                     })
-
-                // e.target.submit()
+                    .catch(err => console.error(err));
+                e.target.submit()
                 }
         }
     }

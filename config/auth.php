@@ -41,7 +41,8 @@ return [
             'provider' => 'users',
         ],
         'api' => [
-            'driver' => 'jwt', // usa JWT em vez de session
+            // 'driver' => 'jwt', // usa JWT em vez de session
+            'driver' => 'sanctum',
             'provider' => 'users',
             'hash' => false
          ],

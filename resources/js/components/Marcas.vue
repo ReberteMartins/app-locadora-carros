@@ -87,15 +87,6 @@
 
 <script>
     export default {
-        computed: {
-                token(){
-                    // let token = localStorage.getItem('token')
-                    let token = document.cookie
-                    console.log(token)
-
-                    return `Bearer ${token}`
-                }
-            },
         data() {
             return {
                 urlBase: 'http://localhost:8000/api/marca',
@@ -119,7 +110,7 @@
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Accept': 'application/json',
-                        'Authorization': this.token,
+                        'Authorization': `Bearer ${localStorage.getItem('token')}` 
                     }
                 }
 

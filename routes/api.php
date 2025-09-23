@@ -14,8 +14,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::group([
-    'middleware' => 'auth:api',
-], function($router) {
+    'middleware' => 'auth:sanctum',
+], function() {
     Route::apiResource('cliente', ClienteController::class);
     Route::apiResource('carro', CarroController::class);
     Route::apiResource('locacao', LocacaoController::class);
