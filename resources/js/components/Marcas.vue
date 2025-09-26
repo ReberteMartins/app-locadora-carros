@@ -37,7 +37,14 @@
                 <card-component titulo="Relação de Marcas">
 
                         <template v-slot:conteudo>
-                            <table-component></table-component>
+                            <table-component :dados="marcas" :titulos="{
+                                id: {titulo: 'ID', tipo: 'texto'},
+                                nome: {titulo: 'Nome', tipo: 'texto'},
+                                imagem: {titulo: 'Imagem', tipo: 'imagem'},
+                                created_at: {titulo: 'Data de criação', tipo: 'data'},
+                            }"
+                            >
+                            </table-component>
                         </template>
 
                         <template v-slot:rodape>
@@ -55,8 +62,8 @@
         <!-- Modal -->
         <modal-component id="modalMarca" titulo="Adicionar Marca">
             <template v-slot:alertas>
-                <alert-component tipo="success" texto="Sucesso ao cadastrar" v-if="transacaoStatus == 'adicionado'"></alert-component>
-                <alert-component tipo="danger" texto="Erro ao cadastrar" v-if="transacaoStatus == 'erro'"></alert-component>
+                <alert-component tipo="success" :detalhes="transacaoDetalhes" texto="Sucesso ao cadastrar" v-if="transacaoStatus == 'adicionado'"></alert-component>
+                <alert-component tipo="danger" :detalhes="transacaoDetalhes" texto="Erro ao cadastrar" v-if="transacaoStatus == 'erro'"></alert-component>
             </template>
 
 
@@ -82,6 +89,7 @@
 
             </template>
         </modal-component>
+
     </div>
 </template>
 
@@ -90,12 +98,31 @@
         data() {
             return {
                 urlBase: 'http://localhost:8000/api/marca',
+                config: {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                },
                 nomeMarca: '',
                 arquivoImagem: [],
                 transacaoStatus: '',
+                transacaoDetalhes: {},
+                marcas: []
             }
         },
         methods:{
+            carregarLista(){
+                axios.get(this.urlBase, this.config)
+                    .then(response => {
+                        this.marcas = response.data
+                        console.log(this.marcas)
+                    })
+                    .catch(errors => {
+                        console.log(errors)
+                    })
+            },
             carregarImagem(e){
                 this.arquivoImagem = e.target.files
             },
@@ -106,24 +133,34 @@
                 formData.append('nome', this.nomeMarca)
                 formData.append('imagem', this.arquivoImagem[0])
 
-                let config = {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}` 
-                    }
-                }
+                // let config = {
+                //     headers: {
+                //         'Content-Type': 'multipart/form-data',
+                //         'Accept': 'application/json',
+                //         'Authorization': `Bearer ${localStorage.getItem('token')}`
+                //     }
+                // }
 
                 // URL | Conteudo | Configuração
-                axios.post( this.urlBase, formData, config).then(response=> {
+                axios.post( this.urlBase, formData, this.config).then(response=> {
                     this.transacaoStatus = 'adicionado'
+                    this.transacaoDetalhes = {
+                        mensagem: "ID do registro: "+response.data.id
+                    }
                     console.log(response)
                 })
                 .catch(errors => {
                     this.transacaoStatus = 'erro'
+                    this.transacaoDetalhes = {
+                        mensagem:errors.response.data.message,
+                        dados: errors.response.data.errors
+                    }
                     console.log(errors)
                 })
             }
+        },
+        mounted(){
+            this.carregarLista()
         }
     }
 </script>
