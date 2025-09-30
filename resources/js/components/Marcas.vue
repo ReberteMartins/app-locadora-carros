@@ -37,7 +37,7 @@
                 <card-component titulo="Relação de Marcas">
 
                         <template v-slot:conteudo>
-                            <table-component :dados="marcas" :titulos="{
+                            <table-component v-if="marcas.data" :dados="marcas.data" :titulos="{
                                 id: {titulo: 'ID', tipo: 'texto'},
                                 nome: {titulo: 'Nome', tipo: 'texto'},
                                 imagem: {titulo: 'Imagem', tipo: 'imagem'},
@@ -48,7 +48,21 @@
                         </template>
 
                         <template v-slot:rodape>
-                            <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#modalMarca">Adicionar</button>
+                            <div class="row">
+                                <div class="col-10">
+                                    <paginate-component>
+                                            <li v-for="l, key in marcas.links" :key="key"
+                                                :class="l.active ? 'page-item active' : 'page-item'"
+                                                @click="paginacao(l)"
+                                            >
+                                                <a class="page-link" v-html="l.label"></a>
+                                            </li>
+                                    </paginate-component>
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#modalMarca">Adicionar</button>
+                                </div>
+                            </div>
                         </template>
 
                 </card-component>
@@ -109,10 +123,16 @@
                 arquivoImagem: [],
                 transacaoStatus: '',
                 transacaoDetalhes: {},
-                marcas: []
+                marcas: {data: []}
             }
         },
         methods:{
+            paginacao(l){
+                if(l.url) {
+                    this.urlBase = l.url
+                    this.carregarLista()
+                }
+            },
             carregarLista(){
                 axios.get(this.urlBase, this.config)
                     .then(response => {

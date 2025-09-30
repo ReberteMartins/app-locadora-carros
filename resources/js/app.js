@@ -20,6 +20,7 @@ import TableContainer from './components/Table.vue';
 import CardContainer from './components/Card.vue';
 import ModalContainer from './components/Modal.vue';
 import AlertComponent from './components/Alert.vue';
+import PaginateComponent from './components/Paginate.vue';
 
 /**
  * --------------------------------------------------------------------------
@@ -43,6 +44,7 @@ const components = {
   'card-component': CardContainer,
   'modal-component': ModalContainer,
   'alert-component': AlertComponent,
+  'paginate-component': PaginateComponent,
 
 };
 
