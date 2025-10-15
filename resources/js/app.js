@@ -6,6 +6,18 @@
 import './bootstrap';
 import { createApp } from 'vue';
 
+import { createStore } from 'vuex'
+
+// Vue.use(Vuex)
+
+const store = new createStore({
+    state: {
+        item: {},
+        transacao: {status: '', mensagem: ''}
+    }
+})
+
+
 /**
  * --------------------------------------------------------------------------
  * Importa os componentes Vue
@@ -28,6 +40,8 @@ import PaginateComponent from './components/Paginate.vue';
  * --------------------------------------------------------------------------
  */
 const app = createApp({});
+
+app.use(store)
 
 /**
  * --------------------------------------------------------------------------
