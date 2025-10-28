@@ -168,12 +168,14 @@
         <!-- Modal de Atualizacao de Marca -->
         <modal-component id="modalMarcaAtualizar" titulo="Atualizar marca">
             <template v-slot:alertas>
+                <alert-component tipo="success" texto="Transação realizada com sucesso" :detalhes="{mensagem: ''}" v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
+                <alert-component tipo="danger" texto="Erro na transação" :detalhes="{mensagem: ''}" v-if="$store.state.transacao.status == 'erro'"></alert-component>
             </template>
 
             <template v-slot:conteudo>
                 <div class="form-group">
                     <input-container-component titulo="Nome da marca" id="atualizarNome" id-help="atualizarNomeHelp" texto-ajuda="Informe o nome do registro">
-                        <input type="text" class="form-control" id="atualizarNome" aria-describedby="atualizarNomeHelp" placeholder="Nome da Marca" v-model="nomeMarca">
+                        <input type="text" class="form-control" id="atualizarNome" aria-describedby="atualizarNomeHelp" placeholder="Nome da Marca" v-model="$store.state.item.nome">
                     </input-container-component>
                 </div>
 
@@ -182,6 +184,7 @@
                         <input type="file" class="form-control" id="atualizarImagem" aria-describedby="atualizarImagemHelp" placeholder="Selecione uma imagem" @change="carregarImagem($event)">
                     </input-container-component>
                 </div>
+
             </template>
 
             <template v-slot:rodape>
@@ -203,9 +206,7 @@
                 config: {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
+                   }
                 },
                 nomeMarca: '',
                 arquivoImagem: [],
@@ -251,7 +252,6 @@
                  if (filtro != '') {
                     this.urlPaginacao = 'page=1'
                      this.urlFiltro = '&filtro='+filtro
-                    //  console.log(this.urlFiltro)
                  }else{
                     this.urlFiltro = ''
                  }
@@ -259,10 +259,8 @@
             },
             paginacao(l){
                 if(l.url) {
-                    // this.urlBase = l.url
                     this.urlPaginacao = l.url.split('?')[1]
                     this.carregarLista()
-                    // console.log(l.url.split('?')[1])
                 }
             },
             carregarLista(){
@@ -310,7 +308,34 @@
                 })
             },
             atualizar(){
-                console.log(this.$store.state.item)
+                let formData = new FormData();
+                formData.append('_method', 'patch')
+                formData.append('nome', this.$store.state.item.nome)
+
+                if (this.arquivoImagem[0]) {
+                    formData.append('imagem', this.arquivoImagem[0])
+                }
+
+                let url = this.urlBase + '/' + this.$store.state.item.id
+
+                console.log(formData, url)
+
+                axios.post(url, formData, this.config)
+                    .then(response => {
+                        atualizarImagem.value = ''
+                        this.$store.state.transacao.status = 'sucesso'
+                        this.$store.state.transacao.mensagem = 'Registro atualizado com sucesso'
+
+                        this.carregarLista()
+                    })
+                    .catch(errors => {
+                        this.$store.state.transacao.status = 'erro'
+                        this.$store.state.transacao.mensagem = errors.response,data.message
+                        this.$store.state.transacao.dados = errors.response,data.errors
+
+                        console.log('Erro de atualização', errors.response)
+                    })
+
             }
         },
         mounted(){
